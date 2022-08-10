@@ -22,6 +22,23 @@ class Student:
             return f'Студент не посещает курс {grade}, значит он не может ' \
                    f'оценить текущего преподавателя преподавателя'
 
+    def avg_grade(self):
+        if len(self.grades) == 0:
+            return 'неопределенна'
+        else:
+            all_grades = []
+            for course, course_grades in self.grades.items():
+                all_grades += course_grades
+            return '%.1f' % sum(all_grades) / len(all_grades)
+
+    def __str__(self):
+        return f'Имя: {self.name}\nФамилия: {self.surname}\n' \
+               f'Средняя оценка за домашние задания: {self.avg_grade()}\n'\
+               f'Курсы в процессе изучения: ' \
+               f'{", ".join([_ for _ in self.courses_in_progress])}\n' \
+               f'Завершенные курсы: ' \
+               f'{", ".join([_ for _ in self.finished_courses])}'
+
 
 class Mentor:
     def __init__(self, name, surname):
@@ -35,6 +52,20 @@ class Lecturer(Mentor):
         super().__init__(name, surname)
         self.lectures_grades = {}
 
+    def avg_lecture_grade(self):
+        if len(self.lectures_grades) == 0:
+            return 'неопределенна'
+        else:
+            all_grades = []
+            for lecture, lecture_grades in self.lectures_grades.items():
+                all_grades += lecture_grades
+            return '%.1f' % sum(all_grades) / len(all_grades)
+
+    def __str__(self):
+        avg_grade = self.avg_lecture_grade()
+        return f'Имя: {self.name}\nФамилия: {self.surname}\n' \
+               f'Средняя оценка за лекции: {avg_grade}'
+
 
 class Reviewer(Mentor):
     def rate_hw(self, student, course, grade):
@@ -46,3 +77,6 @@ class Reviewer(Mentor):
                 student.grades[course] = [grade]
         else:
             return f'Данный преподаватель не может проверить курс {course}'
+
+    def __str__(self):
+        return f'Имя: {self.name}\nФамилия: {self.surname}'
