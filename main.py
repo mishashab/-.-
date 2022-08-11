@@ -38,6 +38,12 @@ class Student:
                f'{", ".join([_ for _ in self.courses_in_progress])}\n' \
                f'Завершенные курсы: ' \
                f'{", ".join([_ for _ in self.finished_courses])}'
+    
+    def __lt__(self, other):
+        if not isinstance(other, Student):
+            print('Not a student')
+            return
+        else self.avg_grade() < other.avg_grade()
 
 
 class Mentor:
@@ -65,6 +71,12 @@ class Lecturer(Mentor):
         avg_grade = self.avg_lecture_grade()
         return f'Имя: {self.name}\nФамилия: {self.surname}\n' \
                f'Средняя оценка за лекции: {avg_grade}'
+    
+    def __lt__(self, other):
+        if not isinstance(other, Lecturer):
+            print('Not a lecturer')
+            return
+        else self.avg_grade() < other.avg_grade()
 
 
 class Reviewer(Mentor):
