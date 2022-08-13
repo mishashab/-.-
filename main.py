@@ -213,4 +213,58 @@ print(f'Средний балл студента {student1.name}:{student1.avg_g
 print(f'Средний балл студентки {student2.name}:{student2.avg_grade()}')
 print(f'Срдний балл студента {student1.name} больше среднего балла '
       f'студентки {student2.name}: {student1 > student2}')
+print('-' * 80)
+print('-' * 80)
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# Задание 4
+#def avg_grade_for_lection_on_the_course(students, course):
 
+def avg_grade_for_hw_on_the_course(students, course):
+    grades = []
+    for student in students:
+        try:
+            grades += student.grades[course]
+        except:
+            1
+    if len(grades) != 0:
+        return round(sum(grades) / len(grades), 1)
+    else:
+        return f"Оценок по курсу не выставленно"
+
+
+def avg_grade_for_lection_on_the_course(lectors, course):
+    grades = []
+    for lector in lectors:
+        try:
+            grades += lector.lectures_grades[course]
+        except:
+            1
+    if len(grades) != 0:
+        return round(sum(grades) / len(grades), 1)
+    else:
+        return f"Оценок по курсу не выставленно"
+
+
+students_list = [student1, student2]
+print(f"Оценки студентов по курсу {courses[3]}")
+for student in students_list:
+    try:
+        print(student.name, student.grades[courses[3]])
+    except:
+        1
+
+print(f'Средняя оценка по курсу: '
+      f'{avg_grade_for_hw_on_the_course(students_list, courses[3])}')
+print('-' * 80)
+
+lecturers_list = [lecturer1, lecturer2]
+print(f"Оценки преподавателей по курсу {courses[2]}")
+for lecturer in lecturers_list:
+    try:
+        print(lecturer.name, lecturer.lectures_grades[courses[2]])
+    except:
+        1
+
+print(f'Средняя оценка по курсу: '
+      f'{avg_grade_for_lection_on_the_course(lecturers_list, courses[4])}')
