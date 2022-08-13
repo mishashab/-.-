@@ -1,3 +1,5 @@
+import random
+
 class Student:
     def __init__(self, name, surname, gender):
         self.name = name
@@ -8,42 +10,43 @@ class Student:
         self.grades = {}
 
     def rate_lecture(self, lecturer, course, grade):
-        if type(grade) != str:
-            return f'\"{grade}\" не является оценкой'
-        elif grade < 0 or grade > 10:
+        if grade < 0 or grade > 10:
             return f'\"{grade}\" не является баллом в пределах от 1 до 10'
-        elif isinstance(lecturer, Lecturer) and course in self.courses_in_progress \
+        elif isinstance(lecturer, Lecturer) \
+                and course in self.courses_in_progress \
                 and course in lecturer.courses_attached:
             if course in lecturer.lectures_grades:
                 lecturer.lectures_grades[course] += [grade]
             else:
                 lecturer.lectures_grades[course] = [grade]
         else:
-            return f'Студент не посещает курс {grade}, значит он не может ' \
-                   f'оценить текущего преподавателя преподавателя'
+            return f'Студент не посещает курс {grade} или лектор не ведёт ' \
+                   f'его, значит {self.name} не может поставить оценку'
 
-    def avg_grade(self):
+    def avg_grade(self, inside_course = "empty"):
         if len(self.grades) == 0:
-            return 'неопределенна'
+            return
         else:
             all_grades = []
             for course, course_grades in self.grades.items():
-                all_grades += course_grades
-            return '%.1f' % sum(all_grades) / len(all_grades)
+                if course == inside_course or inside_course == "empty":
+                    all_grades += course_grades
+            return round(sum(all_grades) / len(all_grades), 1)
 
     def __str__(self):
         return f'Имя: {self.name}\nФамилия: {self.surname}\n' \
-               f'Средняя оценка за домашние задания: {self.avg_grade()}\n'\
+               f'Средняя оценка за домашние задания: {self.avg_grade()}\n' \
                f'Курсы в процессе изучения: ' \
                f'{", ".join([_ for _ in self.courses_in_progress])}\n' \
                f'Завершенные курсы: ' \
                f'{", ".join([_ for _ in self.finished_courses])}'
-    
+
     def __lt__(self, other):
         if not isinstance(other, Student):
             print('Not a student')
             return
-        else self.avg_grade() < other.avg_grade()
+        else:
+            return self.avg_grade() < other.avg_grade()
 
 
 class Mentor:
@@ -58,25 +61,27 @@ class Lecturer(Mentor):
         super().__init__(name, surname)
         self.lectures_grades = {}
 
-    def avg_lecture_grade(self):
+    def avg_lecture_grade(self, inside_lecture = "empty"):
         if len(self.lectures_grades) == 0:
-            return 'неопределенна'
+            return
         else:
             all_grades = []
             for lecture, lecture_grades in self.lectures_grades.items():
-                all_grades += lecture_grades
-            return '%.1f' % sum(all_grades) / len(all_grades)
+                if lecture == inside_lecture or inside_lecture == "empty":
+                    all_grades += lecture_grades
+            return round(sum(all_grades) / len(all_grades), 1)
 
     def __str__(self):
         avg_grade = self.avg_lecture_grade()
         return f'Имя: {self.name}\nФамилия: {self.surname}\n' \
                f'Средняя оценка за лекции: {avg_grade}'
-    
+
     def __lt__(self, other):
         if not isinstance(other, Lecturer):
             print('Not a lecturer')
             return
-        else self.avg_grade() < other.avg_grade()
+        else:
+            return self.avg_lecture_grade() < other.avg_lecture_grade()
 
 
 class Reviewer(Mentor):
@@ -88,7 +93,124 @@ class Reviewer(Mentor):
             else:
                 student.grades[course] = [grade]
         else:
-            return f'Данный преподаватель не может проверить курс {course}'
+            return f'Данный преподаватель не может проверить курс {course} ' \
+                   f'у {student.name}'
+
 
     def __str__(self):
         return f'Имя: {self.name}\nФамилия: {self.surname}'
+
+
+# Создание объектов класса
+student1 = Student("Евгений", "Васильев", "мужской")
+student2 = Student("Анна", "Васильева", "женский")
+lecturer1 = Lecturer("Аглая", "Петрова")
+lecturer2 = Lecturer("Виктор", "Фомин")
+reviewer1 = Reviewer("Виктор", "Петров")
+reviewer2 = Reviewer("Ангелина", "Ефремова")
+
+
+# Проставление пройденных и проходимых курсов студентам
+courses = ["Разработка компьютерных игр", "DevOps", "HTML-верстальщик",
+           "Веб-программист PHP", "Английский язык"]
+
+student1.finished_courses.append(courses[0])
+student1.finished_courses.append(courses[1])
+student1.courses_in_progress.append(courses[2])
+student1.courses_in_progress.append(courses[3])
+
+student2.finished_courses.append(courses[2])
+student2.finished_courses.append(courses[0])
+student2.courses_in_progress.append(courses[1])
+student2.courses_in_progress.append(courses[3])
+student2.courses_in_progress.append(courses[4])
+
+reviewer1.courses_attached.append(courses[0])
+reviewer1.courses_attached.append(courses[1])
+reviewer1.courses_attached.append(courses[2])
+reviewer2.courses_attached.append(courses[2])
+reviewer2.courses_attached.append(courses[3])
+reviewer2.courses_attached.append(courses[4])
+
+lecturer1.courses_attached.append(courses[0])
+lecturer1.courses_attached.append(courses[1])
+lecturer1.courses_attached.append(courses[2])
+lecturer2.courses_attached.append(courses[2])
+lecturer2.courses_attached.append(courses[3])
+lecturer2.courses_attached.append(courses[4])
+
+
+#Так же при выполнении затргивается и режим исключений,
+#когда нельзя оценивать за определённые курсы
+for i in range(30):
+    student1_mark = int(random.random() * 10 + 1)
+    student1_course = random.choice(courses)
+
+    reviewer1.rate_hw(student1, student1_course, student1_mark)
+
+    student2_mark = int(random.random() * 10 + 1)
+    student2_course = random.choice(courses)
+
+    reviewer1.rate_hw(student2, student2_course, student2_mark)
+
+    lecturer1_mark = int(random.random() * 10 + 1)
+    lecturer1_course = random.choice(courses)
+    student1.rate_lecture(lecturer1, lecturer1_course, lecturer1_mark)
+
+    lecturer2_mark = int(random.random() * 10 + 1)
+    lecturer2_course = random.choice(courses)
+    student1.rate_lecture(lecturer2, lecturer2_course, lecturer2_mark)
+
+    student1_mark = int(random.random() * 10 + 1)
+    student1_course = random.choice(courses)
+
+    reviewer2.rate_hw(student1, student1_course, student1_mark)
+
+    student2_mark = int(random.random() * 10 + 1)
+    student2_course = random.choice(courses)
+
+    reviewer2.rate_hw(student2, student2_course, student2_mark)
+
+    lecturer1_mark = int(random.random() * 10 + 1)
+    lecturer1_course = random.choice(courses)
+    student2.rate_lecture(lecturer1, lecturer1_course, lecturer1_mark)
+
+    lecturer2_mark = int(random.random() * 10 + 1)
+    lecturer2_course = random.choice(courses)
+    student2.rate_lecture(lecturer2, lecturer2_course, lecturer2_mark)
+
+# Проверка на заполняемость оценок
+# print(student1.grades)
+# print(student2.grades)
+# print(lecturer1.lectures_grades)
+# print(lecturer2.lectures_grades)
+
+print('Работа функции __str__')
+print('-' * 80)
+print('-' * 80)
+print(student1)
+print('-' * 80)
+print(student2)
+print('-' * 80)
+print(lecturer1)
+print(print('-' * 80))
+print(lecturer2)
+print('-' * 80)
+print(reviewer1)
+print('-' * 80)
+print(reviewer2)
+print('-' * 80)
+print('-' * 80)
+
+print('Работа функции __lt__')
+print('-' * 80)
+print(f'Средний балл лектора {lecturer1.name}:{lecturer1.avg_lecture_grade()}')
+print(f'Средний балл лектора {lecturer2.name}:{lecturer2.avg_lecture_grade()}')
+print(f'Срдний балл лектора {lecturer1.name} больше среднего балла '
+      f'лектора {lecturer2.name}: {lecturer1 > lecturer2}')
+print('-' * 80)
+print(f'Средний балл студента {student1.name}:{student1.avg_grade()}')
+print(f'Средний балл студентки {student2.name}:{student2.avg_grade()}')
+print(f'Срдний балл студента {student1.name} больше среднего балла '
+      f'студентки {student2.name}: {student1 > student2}')
+
